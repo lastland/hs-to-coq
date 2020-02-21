@@ -50,6 +50,8 @@ before_install:
 
 jobs:
   include:
+    - os: linux
+    - os: osx
   # This builds Coq, the dependencies of hs-to-coq and hs-to-coq itself,
   # and puts them in the cache.
   # One could break it down, but that is only useful if the steps together
