@@ -35,13 +35,18 @@ addons:
       - opam
       - libgmp-dev
       - xutils-dev
+  homebrew:
+    packages:
+      - haskell-stack
+      - opam
+    casks:
+      - xquartz
 
 before_install:
  # Download and unpack the stack executable
  - mkdir -p ~/.local/bin
  - export PATH=$HOME/.local/bin:$PATH
- - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
- - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew cask install xquartz; fi
+ - if [ "$TRAVIS_OS_NAME" = "linux" ]; then travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'; fi
 
 jobs:
   include:
@@ -55,7 +60,7 @@ jobs:
       # Coq
       - if ! [ -e $HOME/.opam/config ]; then opam init -j 2 -n -y; fi
       - opam repo add coq-released http://coq.inria.fr/opam/released || true
-      - opam list -i coq.8.10.2 --silent || { opam update && opam unpin coq && opam install -v -y -j 1  coq.8.10.2 ocamlfind.1.8.0 ; }
+      - opam list -i coq.8.10.2 --silent || { opam update && opam unpin coq && opam install -v -y -j 1  coq.8.10.2 ocamlfind.1.8.1 ; }
       - opam list -i coq-mathcomp-ssreflect --silent || opam install -y coq-mathcomp-ssreflect
       - opam list -i coq-itree.3.0.0 --silent || opam install -y coq-itree.3.0.0
 
