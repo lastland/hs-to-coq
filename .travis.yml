@@ -1,5 +1,7 @@
-sudo: false
 language: generic
+os:
+  - linux
+  - osx
 
 # Travis slack notification
 notifications:
@@ -39,6 +41,7 @@ before_install:
  - mkdir -p ~/.local/bin
  - export PATH=$HOME/.local/bin:$PATH
  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+ - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew cask install xquartz; fi
 
 jobs:
   include:
