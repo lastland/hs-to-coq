@@ -50,14 +50,16 @@ before_install:
 
 jobs:
   include:
-    - os: linux
-    - os: osx
   # This builds Coq, the dependencies of hs-to-coq and hs-to-coq itself,
   # and puts them in the cache.
   # One could break it down, but that is only useful if the steps together
   # take longer than 50 minutes. Otherwise it just takes precious minutes
   # to load the cache
   - stage: Install dependencies, build hs-to-coq
+    include:
+      - os: linux
+      - os: osx
+
     install:
       # Coq
       - if ! [ -e $HOME/.opam/config ]; then opam init -j 2 -n -y; fi
@@ -77,6 +79,9 @@ jobs:
   - stage: Tests and Examples
 
     name: GHC (including transformers)
+    include:
+      - os: linux
+      - os: osx
     script:
       - eval $(opam config env)
       - make -j2 -C base
@@ -98,6 +103,9 @@ jobs:
       - make -j2 -C examples/containers/theories
 
   - name: Containers (extraction)
+    include:
+      - os: linux
+      - os: osx
     script:
       - stack --no-terminal --install-ghc install
       - eval $(opam config env)
@@ -125,6 +133,9 @@ jobs:
       - make -j2 -C examples/wc
 
   - name: tests and base tests
+    include:
+      - os: linux
+      - os: osx
     script:
       - eval $(opam config env)
       - stack --no-terminal --install-ghc install
@@ -166,6 +177,9 @@ jobs:
       - git diff-index --cached --quiet HEAD -- examples/transformers/lib/
 
   - name: Translating GHC (ensures convenience copy is up-to-date)
+    include:
+      - os: linux
+      - os: osx
     script:
       - stack --no-terminal --install-ghc install
       - eval $(opam config env)
