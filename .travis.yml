@@ -3,10 +3,6 @@ os:
   - linux
   - osx
 
-matrix:
-  include:
-    - env: COQ_VERSION=8.10.2
-    - env: COQ_VERSION=8.11.0
 
 # Travis slack notification
 notifications:
@@ -55,6 +51,8 @@ before_install:
 
 jobs:
   include:
+  - env: COQ_VERSION=8.10.2
+  - env: COQ_VERSION=8.11.0
   # This builds Coq, the dependencies of hs-to-coq and hs-to-coq itself,
   # and puts them in the cache.
   # One could break it down, but that is only useful if the steps together
