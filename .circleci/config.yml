@@ -4,12 +4,10 @@ executors:
   coq-810:
     docker:
       - image: coqorg/coq:8.10.2
-    working_directory: /tmp
 
   coq-811:
     docker:
       - image: coqorg/coq:8.11.0
-    working_directory: /tmp
 
 commands:
   build-base:
@@ -109,7 +107,7 @@ jobs:
     executor: coq-810
     steps:
       - attach_workspace:
-          at: /tmp
+          at: ~/project
       - build-transformers
       - persist_to_workspace:
           root: examples
@@ -120,7 +118,7 @@ jobs:
     executor: coq-810
     steps:
       - attach_workspace:
-          at: /tmp
+          at: ~/project
       - build-containers
       - persist_to_workspace:
           root: examples
@@ -131,21 +129,21 @@ jobs:
     executor: coq-810
     steps:
       - attach_workspace:
-          at: /tmp
+          at: ~/project
       - build-ghc
 
   coq-810-others:
     executor: coq-810
     steps:
       - attach_workspace:
-          at: /tmp
+          at: ~/project
       - build-others
 
   coq-810-tests:
     executor: coq-810
     steps:
       - attach_workspace:
-          at: /tmp
+          at: ~/project
       - build-tests
 
   coq-811-base:
@@ -163,7 +161,7 @@ jobs:
     executor: coq-811
     steps:
       - attach_workspace:
-          at: /tmp
+          at: ~/project
       - build-transformers
       - persist_to_workspace:
           root: examples
@@ -174,7 +172,7 @@ jobs:
     executor: coq-811
     steps:
       - attach_workspace:
-          at: /tmp
+          at: ~/project
       - build-containers
       - persist_to_workspace:
           root: examples
@@ -185,21 +183,21 @@ jobs:
     executor: coq-811
     steps:
      - attach_workspace:
-          at: /tmp
+          at: ~/project
      - build-ghc
 
   coq-811-others:
     executor: coq-811
     steps:
       - attach_workspace:
-          at: /tmp
+          at: ~/project
       - build-others
 
   coq-811-tests:
     executor: coq-811
     steps:
       - attach_workspace:
-          at: /tmp
+          at: ~/project
       - build-tests
 
 
