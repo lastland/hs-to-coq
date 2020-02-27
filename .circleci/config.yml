@@ -17,17 +17,17 @@ executors:
     docker:
       - image: fpco/stack-build:lts
       - image: coqorg/coq:8.10.2
-    environment:
-      COQ_VERSION: 8.10.2
-      SSREFLECT_VERSION: 1.9.0
+        environment:
+          COQ_VERSION: 8.10.2
+          SSREFLECT_VERSION: 1.9.0
 
   haskell-with-coq-811:
     docker:
       - image: fpco/stack-build:lts
       - image: coqorg/coq:8.11.0
-    environment:
-      COQ_VERSION: 8.11.0
-      SSREFLECT_VERSION: 1.10.0
+        environment:
+          COQ_VERSION: 8.11.0
+          SSREFLECT_VERSION: 1.10.0
 
 commands:
   build-base:
@@ -47,7 +47,7 @@ commands:
     steps:
       - run: |
           eval $(opam config env)
-          opam list -i coq-mathcomp-ssreflect.$(SSREFLECT_VERSION) --silent || opam install -y coq-mathcomp-ssreflect.$(SSREFLECT_VERSION)
+          opam list -i coq-mathcomp-ssreflect.${SSREFLECT_VERSION} --silent || opam install -y coq-mathcomp-ssreflect.${SSREFLECT_VERSION}
           make -C examples/containers/lib
           make -C examples/containers/theories
 
@@ -55,7 +55,7 @@ commands:
     steps:
       - run: |
           eval $(opam config env)
-          opam list -i coq-mathcomp-ssreflect.$(SSREFLECT_VERSION) --silent || opam install -y coq-mathcomp-ssreflect.$(SSREFLECT_VERSION)
+          opam list -i coq-mathcomp-ssreflect.${SSREFLECT_VERSION} --silent || opam install -y coq-mathcomp-ssreflect.${SSREFLECT_VERSION}
           make -C examples/ghc/lib
           make -C examples/ghc/theories
           make -C examples/core-semantics
@@ -146,7 +146,7 @@ jobs:
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
-            - opam-{{ .Environment.COQ_VERSION }}
+            - opam-coq.8.10.2
       - build-containers
       - persist_to_workspace:
           root: examples
@@ -154,7 +154,7 @@ jobs:
             - containers
       - save_cache:
           name: Cache Dependencies
-          key: opam-{{ .Environment.COQ_VERSION }}
+          key: opam-coq.8.10.2
           paths:
             - "/root/.opam"
 
@@ -167,13 +167,8 @@ jobs:
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
-            - opam-{{ .Environment.COQ_VERSION }}
+            - opam-coq.8.10.2
       - build-ghc
-      - save_cache:
-          name: Cache Dependencies
-          key: opam-{{ .Environment.COQ_VERSION }}
-          paths:
-            - "/root/.opam"
 
   coq-810-others:
     executor: haskell-with-coq-810
@@ -181,6 +176,10 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
+      - restore_cache:
+          name: Restore Cached Dependencies
+          keys:
+            - hs-to-coq-{{ checksum "stack.yaml" }}
       - run: stack --no-terminal --install-ghc install
       - build-others
 
@@ -190,6 +189,10 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
+      - restore_cache:
+          name: Restore Cached Dependencies
+          keys:
+            - hs-to-coq-{{ checksum "stack.yaml" }}
       - run: stack --no-terminal --install-ghc install
       - build-tests
 
@@ -225,7 +228,7 @@ jobs:
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
-            - opam-{{ .Environment.COQ_VERSION }}
+            - opam-coq.8.11.0
       - build-containers
       - persist_to_workspace:
           root: examples
@@ -233,7 +236,7 @@ jobs:
             - containers
       - save_cache:
           name: Cache Dependencies
-          key: opam-{{ .Environment.COQ_VERSION }}
+          key: opam-coq.8.11.0
           paths:
             - "/root/.opam"
 
@@ -246,13 +249,8 @@ jobs:
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
-            - opam-{{ .Environment.COQ_VERSION }}
+            - opam-coq.8.11.0
       - build-ghc
-      - save_cache:
-          name: Cache Dependencies
-          key: opam-{{ .Environment.COQ_VERSION }}
-          paths:
-            - "/root/.opam"
 
   coq-811-others:
     executor: haskell-with-coq-811
@@ -260,6 +258,10 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
+      - restore_cache:
+          name: Restore Cached Dependencies
+          keys:
+            - hs-to-coq-{{ checksum "stack.yaml" }}
       - run: stack --no-terminal --install-ghc install
       - build-others
 
@@ -269,6 +271,10 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
+      - restore_cache:
+          name: Restore Cached Dependencies
+          keys:
+            - hs-to-coq-{{ checksum "stack.yaml" }}
       - run: stack --no-terminal --install-ghc install
       - build-tests
 
@@ -276,7 +282,7 @@ jobs:
 workflows:
   version: 2
 
-  test-coq-810:
+  hs-to-coq:
     jobs:
       - build
       - coq-810-base
@@ -298,10 +304,6 @@ workflows:
           requires:
             - build
             - coq-810-base
-
-  test-coq-811:
-    jobs:
-      - build
       - coq-811-base
       - coq-811-transformers:
           requires:
