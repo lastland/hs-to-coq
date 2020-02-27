@@ -56,8 +56,8 @@ jobs:
       - run:
           name: Resolve/Update Dependencies
           command: |
-            - stack --no-terminal --install-ghc test --only-dependencies
-            - stack --no-terminal --install-ghc install QuickCheck HUnit test-framework test-framework-hunit test-framework-quickcheck2
+            stack --no-terminal --install-ghc test --only-dependencies
+            stack --no-terminal --install-ghc install QuickCheck HUnit test-framework test-framework-hunit test-framework-quickcheck2
       - run:
           name: Build hs-to-coq
           command: stack --no-terminal --install-ghc install
