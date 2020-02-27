@@ -105,6 +105,44 @@ jobs:
     steps:
       - build-tests
 
+  coq-811-base:
+    docker:
+      - image: coqorg/coq:8.11.0
+    steps:
+      - checkout
+      - build-base
+
+  coq-811-transformers:
+    docker:
+      - image: coqorg/coq:8.11.0
+    steps:
+      - build-transformers
+
+  coq-811-containers:
+    docker:
+      - image: coqorg/coq:8.11.0
+    steps:
+      - build-containers
+
+  coq-811-ghc:
+    docker:
+      - image: coqorg/coq:8.11.0
+    steps:
+      - build-ghc
+
+  coq-811-others:
+    docker:
+      - image: coqorg/coq:8.11.0
+    steps:
+      - build-others
+
+  coq-811-tests:
+    docker:
+      - image: coqorg/coq:8.11.0
+    steps:
+      - build-tests
+
+
 workflow:
   version: 2
   test-coq-810:
@@ -126,3 +164,23 @@ workflow:
       - coq-810-tests:
           requires:
             - coq-810-base
+
+  test-coq-811:
+    jobs:
+      - coq-811-base
+      - coq-811-transformers:
+          requires:
+            - coq-811-base
+      - coq-811-containers:
+          requires:
+            - coq-811-base
+      - coq-811-ghc:
+          requires:
+            - coq-811-transformers
+            - coq-811-containers
+      - coq-811-others:
+          requires:
+            - coq-811-base
+      - coq-811-tests:
+          requires:
+            - coq-811-base
