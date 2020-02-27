@@ -13,6 +13,22 @@ executors:
     docker:
       - image: fpco/stack-build:lts
 
+  haskell-with-coq-810:
+    docker:
+      - image: fpco/stack-build:lts
+      - image: coqorg/coq:8.10.2
+    environment:
+      COQ_VERSION: 8.10.2
+      SSREFLECT_VERSION: 1.9.0
+
+  haskell-with-coq-811:
+    docker:
+      - image: fpco/stack-build:lts
+      - image: coqorg/coq:8.11.0
+    environment:
+      COQ_VERSION: 8.11.0
+      SSREFLECT_VERSION: 1.10.0
+
 commands:
   build-base:
     steps:
@@ -31,8 +47,7 @@ commands:
     steps:
       - run: |
           eval $(opam config env)
-          opam repo add coq-released http://coq.inria.fr/opam/released || true
-          opam list -i coq-mathcomp-ssreflect --silent || opam install -y coq-mathcomp-ssreflect
+          opam list -i coq-mathcomp-ssreflect.$(SSREFLECT_VERSION) --silent || opam install -y coq-mathcomp-ssreflect.$(SSREFLECT_VERSION)
           make -C examples/containers/lib
           make -C examples/containers/theories
 
@@ -40,6 +55,7 @@ commands:
     steps:
       - run: |
           eval $(opam config env)
+          opam list -i coq-mathcomp-ssreflect.$(SSREFLECT_VERSION) --silent || opam install -y coq-mathcomp-ssreflect.$(SSREFLECT_VERSION)
           make -C examples/ghc/lib
           make -C examples/ghc/theories
           make -C examples/core-semantics
@@ -127,27 +143,40 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
+      - restore_cache:
+          name: Restore Cached Dependencies
+          keys:
+            - opam-{{ .Environment.COQ_VERSION }}
       - build-containers
       - persist_to_workspace:
-          root: /root
+          root: examples
           paths:
-            - .opam
-            - project/examples/containers
+            - containers
+      - save_cache:
+          name: Cache Dependencies
+          key: opam-{{ .Environment.COQ_VERSION }}
+          paths:
+            - "/root/.opam"
 
   coq-810-ghc:
     executor: coq-810
     steps:
       - checkout
       - attach_workspace:
-          at: /root/.opam
-      - attach_workspace:
           at: ~/project
+      - restore_cache:
+          name: Restore Cached Dependencies
+          keys:
+            - opam-{{ .Environment.COQ_VERSION }}
       - build-ghc
+      - save_cache:
+          name: Cache Dependencies
+          key: opam-{{ .Environment.COQ_VERSION }}
+          paths:
+            - "/root/.opam"
 
   coq-810-others:
-    docker:
-      - image: fpco/stack-build:lts
-      - image: coqorg/coq:8.10.2
+    executor: haskell-with-coq-810
     steps:
       - checkout
       - attach_workspace:
@@ -156,9 +185,7 @@ jobs:
       - build-others
 
   coq-810-tests:
-    docker:
-      - image: fpco/stack-build:lts
-      - image: coqorg/coq:8.10.2
+    executor: haskell-with-coq-810
     steps:
       - checkout
       - attach_workspace:
@@ -195,27 +222,40 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
+      - restore_cache:
+          name: Restore Cached Dependencies
+          keys:
+            - opam-{{ .Environment.COQ_VERSION }}
       - build-containers
       - persist_to_workspace:
-          root: /root
+          root: examples
           paths:
-            - .opam
-            - project/examples/containers
+            - containers
+      - save_cache:
+          name: Cache Dependencies
+          key: opam-{{ .Environment.COQ_VERSION }}
+          paths:
+            - "/root/.opam"
 
   coq-811-ghc:
     executor: coq-811
     steps:
-     - checkout
-     - attach_workspace:
-          at: /root/.opam
-     - attach_workspace:
+      - checkout
+      - attach_workspace:
           at: ~/project
-     - build-ghc
+      - restore_cache:
+          name: Restore Cached Dependencies
+          keys:
+            - opam-{{ .Environment.COQ_VERSION }}
+      - build-ghc
+      - save_cache:
+          name: Cache Dependencies
+          key: opam-{{ .Environment.COQ_VERSION }}
+          paths:
+            - "/root/.opam"
 
   coq-811-others:
-    docker:
-      - image: fpco/stack-build:lts
-      - image: coqorg/coq:8.11.0
+    executor: haskell-with-coq-811
     steps:
       - checkout
       - attach_workspace:
@@ -224,9 +264,7 @@ jobs:
       - build-others
 
   coq-811-tests:
-    docker:
-      - image: fpco/stack-build:lts
-      - image: coqorg/coq:8.11.0
+    executor: haskell-with-coq-811
     steps:
       - checkout
       - attach_workspace:
