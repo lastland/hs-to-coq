@@ -6,7 +6,7 @@ commands:
       - run: make -C base
       - run: make -C base-thy
 
-  build-transformer:
+  build-transformers:
     steps:
       - run: make -C examples/transformers
 
