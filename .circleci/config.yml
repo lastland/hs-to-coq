@@ -143,8 +143,13 @@ jobs:
       - build-tests
 
 
-workflow:
+workflows:
   version: 2
+
+  test-hs-to-coq:
+    jobs:
+      - build
+
   test-coq-810:
     jobs:
       - coq-810-base
