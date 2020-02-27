@@ -4,10 +4,16 @@ executors:
   coq-810:
     docker:
       - image: coqorg/coq:8.10.2
+      - image: fpco/stack-build:lts
 
   coq-811:
     docker:
       - image: coqorg/coq:8.11.0
+      - image: fpco/stack-build:lts
+
+  haskell:
+    docker:
+      - image: fpco/stack-build:lts
 
 commands:
   build-base:
@@ -66,8 +72,7 @@ commands:
 
 jobs:
   build:
-    docker:
-      - image: fpco/stack-build:lts
+    executor: haskell
     steps:
       - checkout
       - restore_cache:
