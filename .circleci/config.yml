@@ -230,7 +230,7 @@ jobs:
 workflows:
   version: 2
 
-  test-coq-810:
+  hs-to-coq:
     jobs:
       - build
       - coq-810-base
@@ -252,10 +252,6 @@ workflows:
           requires:
             - build
             - coq-810-base
-
-  test-coq-811:
-    jobs:
-      - build
       - coq-811-base
       - coq-811-transformers:
           requires:
