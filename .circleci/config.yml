@@ -4,12 +4,10 @@ executors:
   coq-810:
     docker:
       - image: coqorg/coq:8.10.2
-      - image: fpco/stack-build:lts
 
   coq-811:
     docker:
       - image: coqorg/coq:8.11.0
-      - image: fpco/stack-build:lts
 
   haskell:
     docker:
@@ -27,13 +25,13 @@ commands:
     steps:
       - run: |
           eval $(opam config env)
-          make -C examples/transformers
+          make -C examples/transformers/lib
 
   build-containers:
     steps:
       - run: |
           eval $(opam config env)
-          make -C examples/containers
+          make -C examples/containers/lib
           make -C examples/containers/theories
 
   build-ghc:
@@ -93,9 +91,10 @@ jobs:
           paths:
             - "/root/.stack"
             - ".stack-work"
-
-  translating-base:
-
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .stack-work
 
   coq-810-base:
     executor: coq-810
@@ -141,19 +140,25 @@ jobs:
       - build-ghc
 
   coq-810-others:
-    executor: coq-810
+    docker:
+      - image: coqorg/coq:8.10.2
+      - image: fpco/stack-build:lts
     steps:
       - checkout
       - attach_workspace:
           at: ~/project
+      - run: stack --no-terminal --install-ghc install
       - build-others
 
   coq-810-tests:
-    executor: coq-810
+    docker:
+      - image: coqorg/coq:8.10.2
+      - image: fpco/stack-build:lts
     steps:
       - checkout
       - attach_workspace:
           at: ~/project
+      - run: stack --no-terminal --install-ghc install
       - build-tests
 
   coq-811-base:
@@ -200,31 +205,34 @@ jobs:
      - build-ghc
 
   coq-811-others:
-    executor: coq-811
+    docker:
+      - image: coqorg/coq:8.11.0
+      - image: fpco/stack-build:lts
     steps:
       - checkout
       - attach_workspace:
           at: ~/project
+      - run: stack --no-terminal --install-ghc install
       - build-others
 
   coq-811-tests:
-    executor: coq-811
+    docker:
+      - image: coqorg/coq:8.11.0
+      - image: fpco/stack-build:lts
     steps:
       - checkout
       - attach_workspace:
           at: ~/project
+      - run: stack --no-terminal --install-ghc install
       - build-tests
 
 
 workflows:
   version: 2
 
-  test-hs-to-coq:
-    jobs:
-      - build
-
   test-coq-810:
     jobs:
+      - build
       - coq-810-base
       - coq-810-transformers:
           requires:
@@ -238,13 +246,16 @@ workflows:
             - coq-810-containers
       - coq-810-others:
           requires:
+            - build
             - coq-810-base
       - coq-810-tests:
           requires:
+            - build
             - coq-810-base
 
   test-coq-811:
     jobs:
+      - build
       - coq-811-base
       - coq-811-transformers:
           requires:
@@ -258,7 +269,9 @@ workflows:
             - coq-811-containers
       - coq-811-others:
           requires:
+            - build
             - coq-811-base
       - coq-811-tests:
           requires:
+            - build
             - coq-811-base
