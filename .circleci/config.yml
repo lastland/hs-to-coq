@@ -3,6 +3,7 @@ version: 2.1
 commands:
   build-base:
     steps:
+      - run: eval $(opam config env)
       - run: make -C base
       - run: make -C base-thy
 
