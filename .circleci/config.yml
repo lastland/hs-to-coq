@@ -17,17 +17,11 @@ executors:
     docker:
       - image: fpco/stack-build:lts
       - image: coqorg/coq:8.10.2
-        environment:
-          COQ_VERSION: 8.10.2
-          SSREFLECT_VERSION: 1.9.0
 
   haskell-with-coq-811:
     docker:
       - image: fpco/stack-build:lts
       - image: coqorg/coq:8.11.0
-        environment:
-          COQ_VERSION: 8.11.0
-          SSREFLECT_VERSION: 1.10.0
 
 commands:
   build-base:
@@ -44,10 +38,13 @@ commands:
           make -C examples/transformers/lib
 
   build-containers:
+    parameters:
+      ss_version:
+        type: string
     steps:
       - run: |
           eval $(opam config env)
-          opam list -i coq-mathcomp-ssreflect.${SSREFLECT_VERSION} --silent || opam install -y coq-mathcomp-ssreflect.${SSREFLECT_VERSION}
+          opam list -i coq-mathcomp-ssreflect.<< parameters.ss_version >> --silent || opam install -y coq-mathcomp-ssreflect.<< parameters.ss_version >>
           make -C examples/containers/lib
           make -C examples/containers/theories
 
@@ -55,7 +52,6 @@ commands:
     steps:
       - run: |
           eval $(opam config env)
-          opam list -i coq-mathcomp-ssreflect.${SSREFLECT_VERSION} --silent || opam install -y coq-mathcomp-ssreflect.${SSREFLECT_VERSION}
           make -C examples/ghc/lib
           make -C examples/ghc/theories
           make -C examples/core-semantics
@@ -147,7 +143,8 @@ jobs:
           name: Restore Cached Dependencies
           keys:
             - opam-coq.8.10.2
-      - build-containers
+      - build-containers:
+          ss_version: 1.9.0
       - persist_to_workspace:
           root: examples
           paths:
@@ -229,7 +226,8 @@ jobs:
           name: Restore Cached Dependencies
           keys:
             - opam-coq.8.11.0
-      - build-containers
+      - build-containers:
+          ss_version: 1.10.0
       - persist_to_workspace:
           root: examples
           paths:
