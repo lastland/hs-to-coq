@@ -1,0 +1,128 @@
+version: 2.1
+
+commands:
+  build-base:
+    steps:
+      - run: make -C base
+      - run: make -C base-thy
+
+  build-transformer:
+    steps:
+      - run: make -C examples/transformers
+
+  build-containers:
+    steps:
+      - run: make -C examples/containers
+      - run: make -C examples/containers/theories
+
+  build-ghc:
+    steps:
+      - run: make -C examples/ghc/lib
+      - run: make -C examples/ghc/theories
+      - run: make -C examples/core-semantics
+
+  build-others:
+    steps:
+      - run: make -C examples/successors
+      - run: make -C examples/compiler
+      - run: make -C examples/rle
+      - run: make -C examples/bag
+      - run: make -C examples/quicksort
+      - run: make -C examples/dlist
+      - run: make -C examples/intervals
+      - run: make -C examples/coinduction
+
+  build-tests:
+    steps:
+      - run: make -C examples/tests
+      - run: make -C examples/base-tests
+
+  checkout-with-sub:
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+
+jobs:
+  build:
+    docker:
+      - image: fpco/stack-build:lts
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore Cached Dependencies
+          keys:
+            - hs-to-coq-{{ checksum "stack.yaml" }}
+      - run:
+          name: Resolve/Update Dependencies
+          command: |
+            - stack --no-terminal --install-ghc test --only-dependencies
+            - stack --no-terminal --install-ghc install QuickCheck HUnit test-framework test-framework-hunit test-framework-quickcheck2
+      - run:
+          name: Build hs-to-coq
+          command: stack --no-terminal --install-ghc install
+      - save_cache:
+          name: Cache Dependencies
+          key: cci-demo-haskell-v1-{{ checksum "stack.yaml" }}
+          paths:
+            - "/root/.stack"
+            - ".stack-work"
+
+  coq-810-base:
+    docker:
+      - image: coqorg/coq:8.10.2
+    steps:
+      - checkout
+      - build-base
+
+  coq-810-transformers:
+    docker:
+      - image: coqorg/coq:8.10.2
+    steps:
+      - build-transformers
+
+  coq-810-containers:
+    docker:
+      - image: coqorg/coq:8.10.2
+    steps:
+      - build-containers
+
+  coq-810-ghc:
+    docker:
+      - image: coqorg/coq:8.10.2
+    steps:
+      - build-ghc
+
+  coq-810-others:
+    docker:
+      - image: coqorg/coq:8.10.2
+    steps:
+      - build-others
+
+  coq-810-tests:
+    docker:
+      - image: coqorg/coq:8.10.2
+    steps:
+      - build-tests
+
+workflow:
+  version: 2
+  test-coq-810:
+    jobs:
+      - coq-810-base
+      - coq-810-transformers:
+          requires:
+            - coq-810-base
+      - coq-810-containers:
+          requires:
+            - coq-810-base
+      - coq-810-ghc:
+          requires:
+            - coq-810-transformers
+            - coq-810-containers
+      - coq-810-others:
+          requires:
+            - coq-810-base
+      - coq-810-tests:
+          requires:
+            - coq-810-base
