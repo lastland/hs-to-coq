@@ -31,6 +31,8 @@ commands:
     steps:
       - run: |
           eval $(opam config env)
+          opam repo add coq-released http://coq.inria.fr/opam/released || true
+          opam list -i coq-mathcomp-ssreflect --silent || opam install -y coq-mathcomp-ssreflect
           make -C examples/containers/lib
           make -C examples/containers/theories
 
@@ -127,22 +129,25 @@ jobs:
           at: ~/project
       - build-containers
       - persist_to_workspace:
-          root: examples
+          root: /root
           paths:
-            - containers
+            - .opam
+            - project/examples/containers
 
   coq-810-ghc:
     executor: coq-810
     steps:
       - checkout
       - attach_workspace:
+          at: /root/.opam
+      - attach_workspace:
           at: ~/project
       - build-ghc
 
   coq-810-others:
     docker:
-      - image: coqorg/coq:8.10.2
       - image: fpco/stack-build:lts
+      - image: coqorg/coq:8.10.2
     steps:
       - checkout
       - attach_workspace:
@@ -152,8 +157,8 @@ jobs:
 
   coq-810-tests:
     docker:
-      - image: coqorg/coq:8.10.2
       - image: fpco/stack-build:lts
+      - image: coqorg/coq:8.10.2
     steps:
       - checkout
       - attach_workspace:
@@ -192,22 +197,25 @@ jobs:
           at: ~/project
       - build-containers
       - persist_to_workspace:
-          root: examples
+          root: /root
           paths:
-            - containers
+            - .opam
+            - project/examples/containers
 
   coq-811-ghc:
     executor: coq-811
     steps:
      - checkout
      - attach_workspace:
+          at: /root/.opam
+     - attach_workspace:
           at: ~/project
      - build-ghc
 
   coq-811-others:
     docker:
-      - image: coqorg/coq:8.11.0
       - image: fpco/stack-build:lts
+      - image: coqorg/coq:8.11.0
     steps:
       - checkout
       - attach_workspace:
@@ -217,8 +225,8 @@ jobs:
 
   coq-811-tests:
     docker:
-      - image: coqorg/coq:8.11.0
       - image: fpco/stack-build:lts
+      - image: coqorg/coq:8.11.0
     steps:
       - checkout
       - attach_workspace:
@@ -230,7 +238,7 @@ jobs:
 workflows:
   version: 2
 
-  hs-to-coq:
+  test-coq-810:
     jobs:
       - build
       - coq-810-base
@@ -252,6 +260,10 @@ workflows:
           requires:
             - build
             - coq-810-base
+
+  test-coq-811:
+    jobs:
+      - build
       - coq-811-base
       - coq-811-transformers:
           requires:
