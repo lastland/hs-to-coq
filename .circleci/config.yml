@@ -3,40 +3,51 @@ version: 2.1
 commands:
   build-base:
     steps:
-      - run: eval $(opam config env)
-      - run: make -C base
-      - run: make -C base-thy
+      - run: |
+          eval $(opam config env)
+          make -C base
+          make -C base-thy
 
   build-transformers:
     steps:
-      - run: make -C examples/transformers
+      - run: |
+          eval $(opam config env)
+          make -C examples/transformers
 
   build-containers:
     steps:
-      - run: make -C examples/containers
-      - run: make -C examples/containers/theories
+      - run: |
+          eval $(opam config env)
+          make -C examples/containers
+          make -C examples/containers/theories
 
   build-ghc:
     steps:
-      - run: make -C examples/ghc/lib
-      - run: make -C examples/ghc/theories
-      - run: make -C examples/core-semantics
+      - run: |
+          eval $(opam config env)
+          make -C examples/ghc/lib
+          make -C examples/ghc/theories
+          make -C examples/core-semantics
 
   build-others:
     steps:
-      - run: make -C examples/successors
-      - run: make -C examples/compiler
-      - run: make -C examples/rle
-      - run: make -C examples/bag
-      - run: make -C examples/quicksort
-      - run: make -C examples/dlist
-      - run: make -C examples/intervals
-      - run: make -C examples/coinduction
+      - run: |
+          eval $(opam config env)
+          make -C examples/successors
+          make -C examples/compiler
+          make -C examples/rle
+          make -C examples/bag
+          make -C examples/quicksort
+          make -C examples/dlist
+          make -C examples/intervals
+          make -C examples/coinduction
 
   build-tests:
     steps:
-      - run: make -C examples/tests
-      - run: make -C examples/base-tests
+      - run: |
+          eval $(opam config env)
+          make -C examples/tests
+          make -C examples/base-tests
 
   checkout-with-sub:
     steps:
