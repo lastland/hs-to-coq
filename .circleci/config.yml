@@ -84,7 +84,7 @@ jobs:
           command: stack --no-terminal --install-ghc install
       - save_cache:
           name: Cache Dependencies
-          key: cci-demo-haskell-v1-{{ checksum "stack.yaml" }}
+          key: hs-to-coq-{{ checksum "stack.yaml" }}
           paths:
             - "/root/.stack"
             - ".stack-work"
@@ -106,6 +106,7 @@ jobs:
   coq-810-transformers:
     executor: coq-810
     steps:
+      - checkout
       - attach_workspace:
           at: ~/project
       - build-transformers
@@ -117,6 +118,7 @@ jobs:
   coq-810-containers:
     executor: coq-810
     steps:
+      - checkout
       - attach_workspace:
           at: ~/project
       - build-containers
@@ -128,6 +130,7 @@ jobs:
   coq-810-ghc:
     executor: coq-810
     steps:
+      - checkout
       - attach_workspace:
           at: ~/project
       - build-ghc
@@ -135,6 +138,7 @@ jobs:
   coq-810-others:
     executor: coq-810
     steps:
+      - checkout
       - attach_workspace:
           at: ~/project
       - build-others
@@ -142,6 +146,7 @@ jobs:
   coq-810-tests:
     executor: coq-810
     steps:
+      - checkout
       - attach_workspace:
           at: ~/project
       - build-tests
@@ -160,6 +165,7 @@ jobs:
   coq-811-transformers:
     executor: coq-811
     steps:
+      - checkout
       - attach_workspace:
           at: ~/project
       - build-transformers
@@ -171,6 +177,7 @@ jobs:
   coq-811-containers:
     executor: coq-811
     steps:
+      - checkout
       - attach_workspace:
           at: ~/project
       - build-containers
@@ -182,6 +189,7 @@ jobs:
   coq-811-ghc:
     executor: coq-811
     steps:
+     - checkout
      - attach_workspace:
           at: ~/project
      - build-ghc
@@ -189,6 +197,7 @@ jobs:
   coq-811-others:
     executor: coq-811
     steps:
+      - checkout
       - attach_workspace:
           at: ~/project
       - build-others
@@ -196,6 +205,7 @@ jobs:
   coq-811-tests:
     executor: coq-811
     steps:
+      - checkout
       - attach_workspace:
           at: ~/project
       - build-tests
