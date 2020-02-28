@@ -12,6 +12,7 @@ executors:
   haskell:
     docker:
       - image: fpco/stack-build:lts
+    working_directory: /home/coq
 
   haskell-with-coq-810:
     docker:
@@ -98,9 +99,9 @@ jobs:
           command: stack --no-terminal --install-ghc install
       - save_cache:
           name: Cache Dependencies
-          key: hs-to-coq-{{ checksum "stack.yaml" }}
+          key: hs-to-coq-{{ checksum "stack.yaml" }}-{{ checksum "hs-to-coq.cabal" }}
           paths:
-            - "/root/.stack"
+            - "/home/coq/.stack"
             - ".stack-work"
       - persist_to_workspace:
           root: .
@@ -131,7 +132,7 @@ jobs:
             - transformers
 
   coq-810-containers:
-    executor: coq-810
+    executor: haskell-with-coq-810
     steps:
       - checkout
       - attach_workspace:
@@ -144,7 +145,7 @@ jobs:
             - containers
 
   coq-810-ghc:
-    executor: coq-810
+    executor: haskell-with-coq-810
     steps:
       - checkout
       - attach_workspace:
@@ -160,7 +161,7 @@ jobs:
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
-            - hs-to-coq-{{ checksum "stack.yaml" }}
+            - hs-to-coq-{{ checksum "stack.yaml" }}-{{ checksum "hs-to-coq.cabal" }}
       - run: stack --no-terminal --install-ghc install
       - build-others
 
@@ -173,7 +174,7 @@ jobs:
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
-            - hs-to-coq-{{ checksum "stack.yaml" }}
+            - hs-to-coq-{{ checksum "stack.yaml" }}-{{ checksum "hs-to-coq.cabal" }}
       - run: stack --no-terminal --install-ghc install
       - build-tests
 
@@ -201,7 +202,7 @@ jobs:
             - transformers
 
   coq-811-containers:
-    executor: coq-811
+    executor: haskell-with-coq-811
     steps:
       - checkout
       - attach_workspace:
@@ -214,7 +215,7 @@ jobs:
             - containers
 
   coq-811-ghc:
-    executor: coq-811
+    executor: haskell-with-coq-811
     steps:
       - checkout
       - attach_workspace:
@@ -230,7 +231,7 @@ jobs:
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
-            - hs-to-coq-{{ checksum "stack.yaml" }}
+            - hs-to-coq-{{ checksum "stack.yaml" }}-{{ checksum "hs-to-coq.cabal" }}
       - run: stack --no-terminal --install-ghc install
       - build-others
 
@@ -243,7 +244,7 @@ jobs:
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
-            - hs-to-coq-{{ checksum "stack.yaml" }}
+            - hs-to-coq-{{ checksum "stack.yaml" }}-{{ checksum "hs-to-coq.cabal" }}
       - run: stack --no-terminal --install-ghc install
       - build-tests
 
