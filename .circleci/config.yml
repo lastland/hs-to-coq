@@ -15,13 +15,11 @@ executors:
 
   haskell-with-coq-810:
     docker:
-      - image: fpco/stack-build:lts
-      - image: coqorg/coq:8.10.2
+      - image: lastland/hs-to-coq-testbed:coq.8.10.2
 
   haskell-with-coq-811:
     docker:
-      - image: fpco/stack-build:lts
-      - image: coqorg/coq:8.11.0
+      - image: lastland/hs-to-coq-testbed:coq.8.11.0
 
 commands:
   build-base:
@@ -44,7 +42,6 @@ commands:
     steps:
       - run: |
           eval $(opam config env)
-          opam list -i coq-mathcomp-ssreflect.<< parameters.ss_version >> --silent || opam install -y coq-mathcomp-ssreflect.<< parameters.ss_version >>
           make -C examples/containers/lib
           make -C examples/containers/theories
 
@@ -139,21 +136,12 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
-      - restore_cache:
-          name: Restore Cached Dependencies
-          keys:
-            - opam-coq.8.10.2
       - build-containers:
           ss_version: 1.9.0
       - persist_to_workspace:
           root: examples
           paths:
             - containers
-      - save_cache:
-          name: Cache Dependencies
-          key: opam-coq.8.10.2
-          paths:
-            - "/root/.opam"
 
   coq-810-ghc:
     executor: coq-810
@@ -161,10 +149,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
-      - restore_cache:
-          name: Restore Cached Dependencies
-          keys:
-            - opam-coq.8.10.2
       - build-ghc
 
   coq-810-others:
@@ -222,21 +206,12 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
-      - restore_cache:
-          name: Restore Cached Dependencies
-          keys:
-            - opam-coq.8.11.0
       - build-containers:
           ss_version: 1.10.0
       - persist_to_workspace:
           root: examples
           paths:
             - containers
-      - save_cache:
-          name: Cache Dependencies
-          key: opam-coq.8.11.0
-          paths:
-            - "/root/.opam"
 
   coq-811-ghc:
     executor: coq-811
@@ -244,10 +219,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project
-      - restore_cache:
-          name: Restore Cached Dependencies
-          keys:
-            - opam-coq.8.11.0
       - build-ghc
 
   coq-811-others:
@@ -287,13 +258,6 @@ workflows:
       - coq-810-transformers:
           requires:
             - coq-810-base
-      - coq-810-containers:
-          requires:
-            - coq-810-base
-      - coq-810-ghc:
-          requires:
-            - coq-810-transformers
-            - coq-810-containers
       - coq-810-others:
           requires:
             - build
