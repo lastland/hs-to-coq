@@ -1,11 +1,11 @@
 Require Import GHC.Base.
 
 From ITree.Core Require Import ITreeDefinition Subevent.
-Constraint list.u0 <= ITreeDefinition.observe.u0.
 
 From ExtLib.Structures Require Functor Applicative Monad.
 
 Require Import Monads.
+Set Universe Polymorphism.
 
 Axiom numCapabilities : Int.
 Axiom FileStatus : Type.

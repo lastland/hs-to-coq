@@ -9,7 +9,7 @@ Section Functors.
 
   Context `{Functor.Functor f}.
 
-  Global Instance Functor_Functor : Functor f :=
+  Global Instance Functor_Functor : Functor f | 2 :=
     fun _ X =>
       X {| fmap__ := fun a b : Type => Functor.fmap;
            op_zlzd____ := fun a b : Type => Functor.fmap ∘ const
@@ -19,7 +19,7 @@ Section Functors.
 
     Context `{Applicative.Applicative f}.
 
-    Global Instance Applicative_Applicative : Applicative f :=
+    Global Instance Applicative_Applicative : Applicative f | 2:=
       fun _ X =>
         X {| liftA2__ := fun a b c f x y => Applicative.ap (fmap f x) y;
              op_zlztzg____ := fun a b => Applicative.ap ;
@@ -31,7 +31,7 @@ Section Functors.
 
       Context `{Monad.Monad f}.
       
-      Global Instance Monad_Monad : Monad f :=
+      Global Instance Monad_Monad : Monad f | 2 :=
         fun _ X =>
           X {| op_zgzg____ := fun a b x y => Monad.bind x (fun _ => y);
                op_zgzgze____ := fun a b => Monad.bind ;

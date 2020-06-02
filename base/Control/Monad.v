@@ -14,6 +14,7 @@ Require Coq.Program.Wf.
 
 Require Import GHC.Base.   (* bind notation *)
 Open Scope type_scope. (* resolve  (a * b) types *)
+Set Universe Polymorphism.
 (* Converted imports: *)
 
 Require Data.Foldable.
