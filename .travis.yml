@@ -52,6 +52,8 @@ jobs:
   # take longer than 50 minutes. Otherwise it just takes precious minutes
   # to load the cache
   - stage: Install dependencies, build hs-to-coq
+    git:
+      depth: false
     install:
       # Coq
       - if ! [ -e $HOME/.opam/config ]; then opam init -j 2 -n -y; fi
@@ -71,6 +73,8 @@ jobs:
   - stage: Tests and Examples
 
     name: GHC (including transformers)
+    git:
+      depth: false
     script:
       - eval $(opam config env)
       - make -j2 -C base
@@ -83,6 +87,8 @@ jobs:
       - make -j2 -C examples/core-semantics
 
   - name: Containers (theory)
+    git:
+      depth: false
     script:
       - stack --no-terminal --install-ghc install
       - eval $(opam config env)
@@ -103,6 +109,8 @@ jobs:
       - ( cd examples/containers/extraction ; stack --no-terminal --install-ghc bench)
 
   - name: Other examples
+    git:
+      depth: false
     script:
       - stack --no-terminal --install-ghc install
       - eval $(opam config env)
@@ -118,6 +126,8 @@ jobs:
       - make -j2 -C examples/coinduction
 
   - name: tests and base tests
+    git:
+      depth: false
     script:
       - eval $(opam config env)
       - stack --no-terminal --install-ghc install
