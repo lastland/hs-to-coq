@@ -87,6 +87,7 @@ jobs:
       depth: false
       submodules: false
     cache: false
+    addons: false
     before_install:
       - docker pull lastland/hs-to-coq-testbed
       - sudo chown 1000:1000 . -R
@@ -100,28 +101,40 @@ jobs:
       - drun "cd hs-to-coq; make -j -C examples/containers/theories"
       - drun "cd hs-to-coq; make -j -C examples/ghc/lib"
       - drun "cd hs-to-coq; make -j -C examples/ghc/theories"
-      - drun "cd hs-to-coq; make -j -C examples/core-semantics"
 
-  - <<: *test-coq-files
-    name: Other examples
+  - name: GHC Core Smallstep
+    git:
+      depth: false
     script:
-      - drun "cd hs-to-coq; make -j -C base"
-      - drun "cd hs-to-coq; make -j -C base-thy"
-      - drun "cd hs-to-coq; make -j -C examples/successors"
-      - drun "cd hs-to-coq; make -j -C examples/compiler"
-      - drun "cd hs-to-coq; make -j -C examples/rle"
-      - drun "cd hs-to-coq; make -j -C examples/bag"
-      - drun "cd hs-to-coq; make -j -C examples/quicksort"
-      - drun "cd hs-to-coq; make -j -C examples/dlist"
-      - drun "cd hs-to-coq; make -j -C examples/intervals"
-      - drun "cd hs-to-coq; make -j -C examples/coinduction"
+      - eval $(opam config env)
+      - make -j -C examples/core-semantics
 
-  - <<: *test-coq-files
-    name: tests and base tests
+  - name: Other examples
+    git:
+      depth: false
+      submodules: false
     script:
-      - drun "cd hs-to-coq; make -j -C base"
-      - drun "cd hs-to-coq; make -j -C examples/tests"
-      - drun "cd hs-to-coq; make -j -C examples/base-tests"
+      - eval $(opam config env)
+      - make -j -C base
+      - make -j -C base-thy
+      - make -j -C examples/successors
+      - make -j -C examples/compiler
+      - make -j -C examples/rle
+      - make -j -C examples/bag
+      - make -j -C examples/quicksort
+      - make -j -C examples/dlist
+      - make -j -C examples/intervals
+      - make -j -C examples/coinduction
+
+  - name: tests and base tests
+    git:
+      depth: false
+      submodules: false
+    script:
+      - eval $(opam config env)
+      - make -j -C base
+      - make -j -C examples/tests
+      - make -j -C examples/base-tests
 
   - name: Translating base (ensures convenience copy is up-to-date)
     script:
