@@ -68,6 +68,18 @@ jobs:
       - stack --no-terminal --install-ghc install
 
   - stage: Tests and Examples
+    name: Containers (extraction)
+    script:
+      - stack --no-terminal --install-ghc install
+      - eval $(opam config env)
+      - make -j2 -C base
+      - make -j2 -C examples/containers/lib
+      - make -j2 -C examples/containers/extraction/extracted-src/
+      - perl -i examples/containers/extraction/extracted-src/fixcode.pl examples/containers/extraction/extracted-src/*.hs
+      - ( cd examples/containers/extraction ; stack --no-terminal --install-ghc test)
+      - ( cd examples/containers/extraction ; stack --no-terminal --install-ghc bench)
+
+  - &test-coq-files
     name: GHC (including transformers, containers)
     services:
       - docker
@@ -79,41 +91,20 @@ jobs:
       - docker pull lastland/hs-to-coq-testbed
       - sudo chown 1000:1000 . -R
       - shopt -s expand_aliases
-    script:
       - alias drun='docker run -v "$(pwd)":/home/coq/hs-to-coq lastland/hs-to-coq-testbed /bin/sh -c'
+    script:
       - drun "cd hs-to-coq; make -j -C base"
       - drun "cd hs-to-coq; make -j -C base-thy"
-      - drun "cd hs-to-coq; make -j -C examples/transformers"
-      - drun "cd hs-to-coq; make -j -C examples/containers"
+      - drun "cd hs-to-coq; make -j -C examples/transformers/lib"
+      - drun "cd hs-to-coq; make -j -C examples/containers/lib"
       - drun "cd hs-to-coq; make -j -C examples/containers/theories"
       - drun "cd hs-to-coq; make -j -C examples/ghc/lib"
       - drun "cd hs-to-coq; make -j -C examples/ghc/theories"
       - drun "cd hs-to-coq; make -j -C examples/core-semantics"
 
-  - name: Containers (extraction)
+  - <<: *test-coq-files
+    name: Other examples
     script:
-      - stack --no-terminal --install-ghc install
-      - eval $(opam config env)
-      - make -j2 -C base
-      - make -j2 -C examples/containers/lib
-      - make -j2 -C examples/containers/extraction/extracted-src/
-      - perl -i examples/containers/extraction/extracted-src/fixcode.pl examples/containers/extraction/extracted-src/*.hs
-      - ( cd examples/containers/extraction ; stack --no-terminal --install-ghc test)
-      - ( cd examples/containers/extraction ; stack --no-terminal --install-ghc bench)
-
-  - name: Other examples
-    services:
-      - docker
-    git:
-      depth: false
-      submodules: false
-    cache: false
-    before_install:
-      - docker pull lastland/hs-to-coq-testbed
-    script:
-      - shopt -s expand_aliases
-      - alias drun='docker run -v "$(pwd)":/home/coq/hs-to-coq --user $(id -u):$(id -g) lastland/hs-to-coq-testbed /bin/sh -c'
-      - drun "opam init"
       - drun "cd hs-to-coq; make -j -C base"
       - drun "cd hs-to-coq; make -j -C base-thy"
       - drun "cd hs-to-coq; make -j -C examples/successors"
@@ -125,19 +116,9 @@ jobs:
       - drun "cd hs-to-coq; make -j -C examples/intervals"
       - drun "cd hs-to-coq; make -j -C examples/coinduction"
 
-  - name: tests and base tests
-    services:
-      - docker
-    git:
-      depth: false
-      submodules: false
-    cache: false
-    before_install:
-      - docker pull lastland/hs-to-coq-testbed
+  - <<: *test-coq-files
+    name: tests and base tests
     script:
-      - shopt -s expand_aliases
-      - alias drun='docker run -v "$(pwd)":/home/coq/hs-to-coq --user $(id -u):$(id -g) lastland/hs-to-coq-testbed /bin/sh -c'
-      - drun "opam init"
       - drun "cd hs-to-coq; make -j -C base"
       - drun "cd hs-to-coq; make -j -C examples/tests"
       - drun "cd hs-to-coq; make -j -C examples/base-tests"
