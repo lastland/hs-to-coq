@@ -77,10 +77,10 @@ jobs:
     cache: false
     before_install:
       - docker pull lastland/hs-to-coq-testbed
-    script:
+      - sudo chown 1000:1000 . -R
       - shopt -s expand_aliases
-      - alias drun='docker run -v "$(pwd)":/home/coq/hs-to-coq --user $(id -u):$(id -g) lastland/hs-to-coq-testbed /bin/sh -c'
-      - drun "eval $(opam config env)"
+    script:
+      - alias drun='docker run -v "$(pwd)":/home/coq/hs-to-coq lastland/hs-to-coq-testbed /bin/sh -c'
       - drun "cd hs-to-coq; make -j -C base"
       - drun "cd hs-to-coq; make -j -C base-thy"
       - drun "cd hs-to-coq; make -j -C examples/transformers"
