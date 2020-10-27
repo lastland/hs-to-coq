@@ -80,7 +80,7 @@ jobs:
       - ( cd examples/containers/extraction ; stack --no-terminal --install-ghc bench)
 
   - &test-coq-files
-    name: GHC (including transformers, containers)
+    name: GHC (including transformers, containers (MapProofs))
     services:
       - docker
     git:
@@ -97,17 +97,20 @@ jobs:
       - drun "cd hs-to-coq; make -j -C base"
       - drun "cd hs-to-coq; make -j -C base-thy"
       - drun "cd hs-to-coq; make -j -C examples/transformers/lib"
+      - drun "cd hs-to-coq; make -j -C examples/transformers/theories"
       - drun "cd hs-to-coq; make -j -C examples/containers/lib"
-      - drun "cd hs-to-coq; make -j -C examples/containers/theories"
+      - drun "cd hs-to-coq; make MapProofs.vo -j -C examples/containers/theories"
       - drun "cd hs-to-coq; make -j -C examples/ghc/lib"
       - drun "cd hs-to-coq; make -j -C examples/ghc/theories"
+      - drun "cd hs-to-coq; make -j -C examples/core-semantics/lib"
 
-  - name: GHC Core Smallstep
-    git:
-      depth: false
+  - <<: *test-coq-files
+    name: Containers
     script:
-      - eval $(opam config env)
-      - make -j -C examples/core-semantics
+      - drun "cd hs-to-coq; make -j -C base"
+      - drun "cd hs-to-coq; make -j -C base-thy"
+      - drun "cd hs-to-coq; make -j -C examples/containers/lib"
+      - drun "cd hs-to-coq; make -j -C examples/containers/theories"
 
   - name: Other examples
     git:
@@ -175,8 +178,11 @@ jobs:
       - eval $(opam config env)
       - make -C examples/ghc clean
       - make -C examples/ghc vfiles
+      - make -C examples/core-semantics clean
+      - make -C examples/core-semantics vfiles
       # Check that the files in git are identical to the generated ones
       - git add examples/ghc/lib
+      - git add examples/core-semantics/lib
       - git status
       - git diff-index --cached --quiet HEAD -- examples/ghc/lib/
 
