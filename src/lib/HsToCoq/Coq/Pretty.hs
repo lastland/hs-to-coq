@@ -304,8 +304,11 @@ instance Gallina Term where
         <!> "then" <+> align (renderGallina t) <+> "else")
     <!> align (renderGallina f)
 
-  renderGallina' p (HasType tm ty) = maybeParen (p > castPrec) $
-    renderGallina' (castPrec + 1) tm <+> ":" <+> renderGallina' castPrec ty
+  -- The type information is not really useful and can be wrong (for example, if
+  -- the expression is in an instance method, the type will not be renamed with
+  -- `inst_` prefix)
+  renderGallina' p (HasType tm _) = maybeParen (p > castPrec) $
+    renderGallina' (castPrec + 1) tm
 
   renderGallina' p (CheckType tm ty) = maybeParen (p > castPrec) $
     renderGallina' (castPrec + 1) tm <+> "<:" <+> renderGallina' castPrec ty

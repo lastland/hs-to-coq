@@ -41,11 +41,11 @@ PASS = \
   ExceptIn \
   ParserTests \
   StrictPair \
+  InstVar \
+  TypeAnnotations \
 
 # tests that *should* pass but currently fail
 TODO_PASS = \
-  InstVar \
-  TypeAnnotations \
   MutrecInst \
   TopBind \
   ExceptInDataDefinition \
